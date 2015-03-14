@@ -5,7 +5,7 @@ import datetime
 from sensor1 import distance
 
 f = 90 # frequency
-ri = 62
+ri = 70
 le = 70
 spin = 0.4
 turn = 4
