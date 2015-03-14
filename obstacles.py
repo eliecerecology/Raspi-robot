@@ -1,9 +1,9 @@
-#7th March 2015
 import RPi.GPIO as GPIO
 import time
 from time import sleep
 import datetime
 from sensor1 import distance
+
 f = 90 # frequency
 ri = 62
 le = 70
@@ -18,7 +18,6 @@ def init():
     GPIO.setup(11,GPIO.OUT)
     GPIO.setup(13,GPIO.OUT)
     GPIO.setup(15,GPIO.OUT)
-
 
 def stop():
     GPIO.output(7,False)
