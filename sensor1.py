@@ -23,12 +23,19 @@ def distance(measure='cm'):
     else:
         print('improper measurement: in or cm')
         distance = None
-
-    #GPIO.cleanup()
+    
+            
+    GPIO.cleanup()
     return distance
+#    GPIO.outout(12,False)
+#    GPIO.output(16,False)
+
+
 #  except:
 #     distance > 300
 #     GPIO.cleanup()
 #     return distance
     
-    print(distance('cm'))
+print(distance('cm'))
+#GPIO.output(12,False)
+#GPIO.output(16,False)
