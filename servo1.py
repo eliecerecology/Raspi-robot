@@ -25,12 +25,14 @@ Pos = [right,neutral,left]
 a.start(7.5)
 time.sleep(1)
 
+#PARAMETERS
+x = [0,1,-1]
+y1 = [] #dist = []
 
-dist1 = []
 for item in Pos:#[0:3]:
     #checking()
     distance('cm')
-    dist1.append(distance('cm'))
+    y1.append(distance('cm'))
     time.sleep(1)
     checking()
     dc = (item / Pulse) * 100  #percentage of duty cycle
@@ -38,13 +40,17 @@ for item in Pos:#[0:3]:
     print item, dc
     time.sleep(1)
 
- 
-print dist1
+#coordinates1 = [(x,y1) for i in x for j in y1]
+
+coordinates1 = []
+for i,j in zip(x,y1):
+    coordinates1.append((i,j))
+
+print coordinates1
 
 a.stop()
 GPIO.cleanup()
 import stop
-
 
 
 '''
