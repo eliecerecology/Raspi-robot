@@ -15,15 +15,20 @@ clock = pygame.time.Clock()
 
 robImg = pygame.image.load('Robot2.png')
 
-#so where to display or location
+#colors
+white = (255,255,255)
+black = (0,0,0)
+red =(255,0,0)
+green = (0,255,0)
+blue = (0,0,255)
 
+#so where to display or location
 def robot(x,y):
     gameDisplay.blit(robImg,(x,y))
 
-
 def game_loop():
-    x = (display_width *0.45)
-    y = (display_height *0.40)
+    x = (display_width *0.800) #0.45
+    y = (display_height *0.600) # 0.40
 
     x_change = 0
 
@@ -45,14 +50,6 @@ def game_loop():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     x_change = 0
-
-
-
-
-
-
-
-
             '''             
             if event.type ==  pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
@@ -65,6 +62,8 @@ def game_loop():
         x += x_change      
         gameDisplay.fill(white)    
         robot(x,y) #position of the car    
+        pygame.draw.rect(gameDisplay, black,(display_width*0,display_height*0,50,50))
+        pygame.draw.rect(gameDisplay, green,(display_width*0.5,display_height*0.5,50,50))
 
         pygame.display.flip() #pygame.display.flip()
         clock.tick(60) #69 frams per second

@@ -23,11 +23,28 @@ robot_height= 50
 def robot(x,y):
     gameDisplay.blit(robImg,(x,y))
 
+def game_intro():
+    intro = True
+
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+               pygame.quit()
+               quit()
+
+        gameDisplay.fill(white)
+        largeText = pygame.font.Font('freesansbold.ttf',60)
+        TextSurf, TextRect = text_objects("Welcome to FionaGame", largeText)
+        TextRect.center = (display_width/2,display_height/2)
+        gameDisplay.blit(TextSurf,TextRect)
+        pygame.display.update()
+        clock.tick(1)
+        game_loop()
 def things(thingx, thingy, thingw, thingh, color):
     #defin rectangule
     pygame.draw.rect(gameDisplay, color, [thingx,thingy,thingw,thingh])
 
-def things_dodged(count):
+def things_dodged(count): #score system
     font = pygame.font.SysFont(None,25)
     text = font.render("Dodged: "+str(count), True,black)
     gameDisplay.blit(text,(0,0)) # what and where
@@ -61,7 +78,7 @@ def game_loop():
     #position of the object thing
     thing_startx = random.randrange(0, display_width)
     thing_starty = random.randrange(0, display_height)#-600
-    thing_speed = 3 #7 pixels
+    thing_speed = 2 #7 pixels
     thing_width =  50
     thing_height = 50                  
 
@@ -108,7 +125,7 @@ def game_loop():
         #drawing boxes:
         #things(thingx, thingy, thingw, thingh, color)
         things(thing_startx, thing_starty, thing_width, thing_height, black) #thing_startx =position
-        thing_starty += 7#random.randrange(7) # everytime we run the loop we add 7 pix
+        thing_starty += thing_speed#random.randrange(7) # everytime we run the loop we add 7 pix
         #thing_startx += random.randrange(thing_speed
         
         robot(x,y) #position of the car    
@@ -119,14 +136,15 @@ def game_loop():
         if x >= display_width - robot_width or x < 0:
             crash()
 
-            gameExit = True
         #create random generations of blocks
         if thing_starty > display_height: #of the screen
             thing_starty = 0 - thing_height
             thing_startx = random.randrange(0,display_width)
             dodged += 1
+            #making difficult the gamr
             thing_speed +=1
-
+            thing_width += (dodged * 1.2)
+            
         # make them to crash
         if y < thing_starty +  thing_height:
             print 'step1'
@@ -138,6 +156,7 @@ def game_loop():
         
         pygame.display.update() #pygame.display.flip()
         clock.tick(60) #69 frams per second
+game_intro()
 game_loop()
 pygame.quit()
 quit()
