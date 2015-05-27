@@ -10,10 +10,10 @@ leftForward   = 15
 leftBackward  = 16
 
 gpio.setmode(gpio.BOARD)
-gpio.setup(7, True)
-gpio.setup(11, True)
-gpio.setup(13, True)
-gpio.setup(15, True)
+#gpio.output(7, True)
+#gpio.output(11, True)
+#gpio.output(13, True)
+#gpio.output(15, True)
 
 def init():
     #setup GPIO using board numbering
@@ -50,6 +50,17 @@ def stop():
     gpio.output(15, False)
 
 pygame.init()
+#Associate pin numbers with direction
+rightForward  = 11
+rightBackward = 13
+leftForward   = 15
+leftBackward  = 16
+
+gpio.setmode(gpio.BOARD)
+gpio.setup(7, True)
+gpio.setup(11, True)
+gpio.setup(13, True)
+gpio.setup(15, True)
 
 display_width = 800
 display_height = 600
@@ -72,7 +83,18 @@ def robot(x,y):
 
 def game_intro():
     intro = True
+    #Associate pin numbers with direction
+    rightForward  = 11
+    rightBackward = 13
+    leftForward   = 15
+    leftBackward  = 16
 
+    gpio.setmode(gpio.BOARD)
+    gpio.setup(7, True)
+    gpio.setup(11, True)
+    gpio.setup(13, True)
+    gpio.setup(15, True)
+     
     while intro:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -86,6 +108,7 @@ def game_intro():
         gameDisplay.blit(TextSurf,TextRect)
         pygame.display.update()
         clock.tick(1)
+        init()
         game_loop()
 def things(thingx, thingy, thingw, thingh, color):
     #defin rectangule
@@ -134,7 +157,18 @@ def game_loop():
     gameExit = False
 
     while not gameExit:
+        #Associate pin numbers with direction
+        rightForward  = 11
+        rightBackward = 13
+        leftForward   = 15
+        leftBackward  = 16
 
+        gpio.setmode(gpio.BOARD)
+        gpio.setup(7, True)
+        gpio.setup(11, True)
+        gpio.setup(13, True)
+        gpio.setup(15, True)
+	
         for event in pygame.event.get(): 
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -144,10 +178,12 @@ def game_loop():
                 
             if event.type ==  pygame.KEYDOWN: #keydown means keypress
                 if event.key == pygame.K_UP:
+                    
+                    init()
                     forward()
+
                     y_change = -5
                 elif event.key == pygame.K_DOWN:
-                    backward()
                     y_change = 5
 
             if event.type == pygame.KEYUP:

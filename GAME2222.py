@@ -97,6 +97,7 @@ def game_loop():
                 
             if event.type ==  pygame.KEYDOWN: #keydown means keypress
                 if event.key == pygame.K_UP:
+                    #forward()                    
                     y_change = -5
                 elif event.key == pygame.K_DOWN:
                     y_change = 5
