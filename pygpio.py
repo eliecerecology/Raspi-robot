@@ -83,7 +83,7 @@ def robot(x,y):
 
 def game_loop():
     init()
-    sleep_time = 1
+    sleep_time = 5
 
     x = (display_width *0.800) #0.45
     y = (display_height *0.600) # 0.40
@@ -101,9 +101,9 @@ def game_loop():
              #aca empieza el control
             if event.type ==  pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    x_change = -5
+                    x_change = -sleep_time
                     forward(sleep_time)
-                    stop()
+                    GPIO.cleanup()
                 elif event.key == pygame.K_RIGHT:
                     x_change = 5
 
