@@ -7,7 +7,8 @@ library(geoR); require(gridExtra)
 
 #FUNCTION SIMULATION
 simulation = function(replicas){
-  
+  weather <- 19 + 15 * cos(0.02 * (1 : span)) * runif(span) #5 - 33 degrees celcius #old one
+  weather <- runif(364, min(weather), max(weather)) # random
   Result = list()
   for (k in 1:replicas){ #initiate large loop
     #not meta-loop START HERE!   
@@ -24,10 +25,10 @@ simulation = function(replicas){
                                                 range=15, model='Exp'), nmax=60)
     
     yy <- predict(g.dummy, newdata=xy, nsim=1) #random
-    #yy1 <- predict(g.dummy1, newdata=xy, nsim=1) # non random
     yy$sim1 = yy$sim1 + max(yy$sim1) # calibrating topography 2 -5 cm
+    #yy$sim1 = (runif(3600, min(yy$sim1), max(yy$sim1))) # RANDOM topography
     
-    #plotting
+    #################################plotting
     #gridded(yy) = ~x+y
     #gridded(yy1) = ~x+y
     #spplot(obj=yy[1], col.regions=colorRampPalette(c('black', 'gray80','red')))
@@ -41,7 +42,6 @@ simulation = function(replicas){
     }, simplify = FALSE) # TOPOGRAPHY
     
     #weather <- 20 + 10 * cos(0.02 * (1 : span)) * runif(span) #5 - 33 degrees celcius
-    weather <- 19 + 15 * cos(0.02 * (1 : span)) * runif(span) #5 - 33 degrees celcius #old one
     #weather1 <- 18.4  -0.2144 * cos(0.491 * (1 : span)) * runif(span) # real adjustment
     #plot(seq(1,length(weather),1), weather, type = "l")
     
