@@ -162,91 +162,8 @@ simulation = function(replicas){
    }
  
 } #######END function SIMULATION########
-
-####CALLING RESULTS: FROM METALOOP
-simulation(2)
-setwd("/home/eliecer/Desktop")
-#setwd("C:/Users/localadmin_eliediaz/Desktop")
-dput(Res_simul, file = "SimulNon-Random.txt") #
-Res_simul <- dget(file = 'SimulNon-Random.txt') 
- 
-#names(Res_simul[[1]])
-#Res_simul[[1]]$D
-#is.list(Res_simul[[1]]$D)
-D = unlist(Res_simul[[2]]$D)
-Dx = unlist(Res_simul[[2]]$Dx)
-Var_XER = unlist(Res_simul[[2]]$Var_XER)
-Var_X = unlist(Res_simul[[2]]$Var_X)
-mean_XER = unlist(Res_simul[[2]]$mean_XER)
-mean_X = unlist(Res_simul[[2]]$mean_X)
-
-par(mfrow=c(1,1))
-plot(seq(1,length(D), 1), D, type = "l",col=4, xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
-lines(seq(1,length(Dx), 1), Dx, type = "l",  col="red")
-plot(seq(1,length(Var_XER), 1), Var_XER, type = "l",  col=2, xlab="time", ylab="Sd Effect ratio")
-plot(seq(1,length(Var_X), 1), Var_X, type = "l",  col="green", , xlab="time", ylab="Sd Ulva %")
-plot(seq(1,length(Var_XER), 1), mean_XER, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio")
-plot(seq(1,length(Var_X), 1), mean_X, type = "l",  col="green", , xlab="time", ylab="Mean Ulva %")
-
-
-
-###LOOP 5. unpacking the list and transforming data to vectors
-varName = ncol * nrow
-for (i in 1:span){
-  XER[[i]] = as.vector(XER[[i]]) # Originally was X[[i]] but change XER
-  varName[i] = paste("Day", i, sep = "")
-  names(XER) = c(varName) # X or XER 
-  X[[i]] = as.vector(X[[i]])
-  names(XER) = c(varName) # X or XER 
-  names(X) = c(varName)
-}  #Transform the elements of the list to vectors
-
-Xdf= data.frame(do.call(cbind, XER)) # XER or X
-Xdfx =data.frame(do.call(cbind, X))
-ci = cbind(yy, Xdf) # biniding yy and X
-cix = cbind(yy, Xdfx)
-
-
-###TO ANIMATE OR GO to 6
-#plotting http://www.rdocumentation.org/packages/sp/functions/spplot
-#https://stat.ethz.ch/pipermail/r-sig-geo/2010-July/008894.html
-gridded(yy) = ~ x + y
-gridded(ci) = ~ x + y #ER
-gridded(cix) = ~ x + y # Ulva only in abscence of grazers
-
-testit <- function(x){p1 <- proc.time()
-                      Sys.sleep(x)
-                      proc.time() - p1 # The cpu usage should be negligible
-} # CLOCK!
-require(gridExtra)
-
-min = round(min(unlist(lapply(XER,FUN=min)))) #legend bar max
-max = round(max(unlist(lapply(XER,FUN=max)))) #legen bar min
-
-
-a = 0
-for (i in 1:span){ #(i in 1:span){
-  a[i] = i
-  tmp = spplot(obj=cix[i], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), Dx[i],  sep = ":"),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = 1:110)
-  #tmp = spplot(obj=ci[i], main = paste(a[i], c("day"), weather[i], c("Temp"), c("D"),D[i],  sep = ","),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = 1:110)
-  #tmp1 = spplot(obj=ci[i], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), D[i],  sep = ","),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = seq(min,max, l=50)) #, at = seq(-3,5, l=100))#, at = -14:10, at = 1:110
-  
-  print(tmp) #, split=c(2,1,3,3), more=T)
-  #print(tmp1) #, split=c(2,2,3,3), more=T)
-  
-  testit(0.1)
-}
-
-spplot(obj=cix[1], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), Dx[i],  sep = ":"),  scales = list(draw = T), col.regions = colorRampPalette(c('black', 'gray80','red')))
-plot(seq(1,length(weather),1), weather, type = "l")
-
-################################################################
-###############################################################################
-################RANDOM SIMULATION###############################
-######################################################################
-
 simulation_rand = function(replicas){
-  Result = list()
+  Result_rand = list()
   for (k in 1:replicas){ #initiate meta-loop
     #not meta-loop START HERE!   
     ncol = 60; nrow = 60; span = 364 #days
@@ -397,21 +314,33 @@ simulation_rand = function(replicas){
   }  #######END METALOOP!########
   
   Res_simul_rand <<- NULL
+  
   for (l in 1:replicas) {
     Res_simul_rand[[l]] <<- data.frame(Result_rand[[l]])
   }
   
-} #######END function SIMULATION########
+} #######END RANDOM SIMULATION########
 
+####CALLING RESULTS: FROM METALOOP
+simulation(2)
 simulation_rand(2)
+
 setwd("/home/eliecer/Desktop")
 #setwd("C:/Users/localadmin_eliediaz/Desktop")
+dput(Res_simul, file = "SimulNon-Random.txt") #
+Res_simul <- dget(file = 'SimulNon-Random.txt') # TO CALL BACK
 dput(Res_simul_rand, file = "Simul_Random.txt") #
-Res_simul <- dget(file = 'Simul_Random.txt') 
+#Res_simul <- dget(file = 'Simul_Random.txt') # TO CALL BACK 
 
-#names(Res_simul[[1]])
-#Res_simul[[1]]$D
-#is.list(Res_simul[[1]]$D)
+#####NON-RANDOM
+D = unlist(Res_simul[[2]]$D)
+Dx = unlist(Res_simul[[2]]$Dx)
+Var_XER = unlist(Res_simul[[2]]$Var_XER)
+Var_X = unlist(Res_simul[[2]]$Var_X)
+mean_XER = unlist(Res_simul[[2]]$mean_XER)
+mean_X = unlist(Res_simul[[2]]$mean_X)
+
+#####RANDOM
 D_rand = unlist(Res_simul_rand[[2]]$D)
 Dx_rand = unlist(Res_simul_rand[[2]]$Dx)
 Var_XER_rand = unlist(Res_simul_rand[[2]]$Var_XER)
@@ -420,35 +349,75 @@ mean_XER_rand = unlist(Res_simul_rand[[2]]$mean_XER)
 mean_X_rand = unlist(Res_simul_rand[[2]]$mean_X)
 
 par(mfrow=c(1,1))
-plot(seq(1,length(D), 1), D_rand, type = "l",col=4, xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
-lines(seq(1,length(Dx), 1), Dx_rand, type = "l",  col="red")
-plot(seq(1,length(Var_XER), 1), Var_XER_rand, type = "l",  col=2, xlab="time", ylab="Sd Effect ratio")
-plot(seq(1,length(Var_X), 1), Var_X_rand, type = "l",  col="green", , xlab="time", ylab="Sd Ulva %")
-plot(seq(1,length(Var_XER), 1), mean_XER_rand, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio")
-plot(seq(1,length(Var_X), 1), mean_X_rand, type = "l",  col="green", , xlab="time", ylab="Mean Ulva %")
+plot(seq(1,length(D_rand), 1), D_rand, type = "l",col=4, xlab='time',ylab='Fractal D (random)', ylim=c(2.8,3.1), pch=1) #, solo pa cachar!
+lines(seq(1,length(D), 1), D, type = "l",col="red", xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
+
+plot(seq(1,length(Dx_rand), 1), Dx_rand, type = "l",col=4, xlab='time',ylab='Fractal Dx (random)', ylim=c(2.8,3.1), pch=1) 
+lines(seq(1,length(Dx), 1), Dx, type = "l",  col="red")
+
+plot(seq(1,length(Var_XER_rand), 1), Var_XER_rand, type = "l",  col=4, xlab="time", ylab="Sd Effect ratio", ylim=c(0,3.1))
+lines(seq(1,length(Var_XER), 1), Var_XER, type = "l",  col="red")
 
 
+plot(seq(1,length(Var_X_rand), 1), Var_X_rand, type = "l",  col="blue", , xlab="time", ylab="Sd Ulva %")
+lines(seq(1,length(Var_XER), 1), Var_X, type = "l",  col="red")
+
+plot(seq(1,length(Var_XER_rand), 1), mean_XER_rand, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio", , ylim=c(-0.003,0.1))
+lines(seq(1,length(mean_XER), 1), mean_XER, type = "l",  col="red")
+
+plot(seq(1,length(Var_XER_rand), 1), mean_X_rand, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio")
+lines(seq(1,length(mean_XER), 1), mean_X, type = "l",  col="red")
 
 
+###LOOP 5. unpacking the list and transforming data to vectors
+varName = ncol * nrow
+for (i in 1:span){
+  XER[[i]] = as.vector(XER[[i]]) # Originally was X[[i]] but change XER
+  varName[i] = paste("Day", i, sep = "")
+  names(XER) = c(varName) # X or XER 
+  X[[i]] = as.vector(X[[i]])
+  names(XER) = c(varName) # X or XER 
+  names(X) = c(varName)
+}  #Transform the elements of the list to vectors
+
+Xdf= data.frame(do.call(cbind, XER)) # XER or X
+Xdfx =data.frame(do.call(cbind, X))
+ci = cbind(yy, Xdf) # biniding yy and X
+cix = cbind(yy, Xdfx)
 
 
+###TO ANIMATE OR GO to 6
+#plotting http://www.rdocumentation.org/packages/sp/functions/spplot
+#https://stat.ethz.ch/pipermail/r-sig-geo/2010-July/008894.html
+gridded(yy) = ~ x + y
+gridded(ci) = ~ x + y #ER
+gridded(cix) = ~ x + y # Ulva only in abscence of grazers
+
+testit <- function(x){p1 <- proc.time()
+                      Sys.sleep(x)
+                      proc.time() - p1 # The cpu usage should be negligible
+} # CLOCK!
+require(gridExtra)
+
+min = round(min(unlist(lapply(XER,FUN=min)))) #legend bar max
+max = round(max(unlist(lapply(XER,FUN=max)))) #legen bar min
 
 
+a = 0
+for (i in 1:span){ #(i in 1:span){
+  a[i] = i
+  tmp = spplot(obj=cix[i], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), Dx[i],  sep = ":"),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = 1:110)
+  #tmp = spplot(obj=ci[i], main = paste(a[i], c("day"), weather[i], c("Temp"), c("D"),D[i],  sep = ","),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = 1:110)
+  #tmp1 = spplot(obj=ci[i], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), D[i],  sep = ","),  scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = seq(min,max, l=50)) #, at = seq(-3,5, l=100))#, at = -14:10, at = 1:110
+  
+  print(tmp) #, split=c(2,1,3,3), more=T)
+  #print(tmp1) #, split=c(2,2,3,3), more=T)
+  
+  testit(0.1)
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+spplot(obj=cix[1], main = paste(a[i], c("day"), round(weather[i]), c("Temp"), c("D"), Dx[i],  sep = ":"),  scales = list(draw = T), col.regions = colorRampPalette(c('black', 'gray80','red')))
+plot(seq(1,length(weather),1), weather, type = "l")
 
 
 ####################################SEMIVARIOGRAMS, traditional way!
