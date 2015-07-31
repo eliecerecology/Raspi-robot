@@ -322,8 +322,9 @@ simulation_rand = function(replicas){
 } #######END RANDOM SIMULATION########
 
 ####CALLING RESULTS: FROM METALOOP
-simulation(2)
-simulation_rand(2)
+k = 10
+simulation(k)
+simulation_rand(k)
 
 setwd("/home/eliecer/Desktop")
 #setwd("C:/Users/localadmin_eliediaz/Desktop")
@@ -333,40 +334,48 @@ dput(Res_simul_rand, file = "Simul_Random.txt") #
 #Res_simul <- dget(file = 'Simul_Random.txt') # TO CALL BACK 
 
 #####NON-RANDOM
-D = unlist(Res_simul[[2]]$D)
-Dx = unlist(Res_simul[[2]]$Dx)
-Var_XER = unlist(Res_simul[[2]]$Var_XER)
-Var_X = unlist(Res_simul[[2]]$Var_X)
-mean_XER = unlist(Res_simul[[2]]$mean_XER)
-mean_X = unlist(Res_simul[[2]]$mean_X)
+D = list();  Dx = list();  Var_XER = list(); Var_X = list()
+mean_XER = list(); mean_X = list()
+D_rand = list();  Dx_rand = list();  Var_XER_rand = list(); Var_X_rand = list()
+mean_XER_rand = list(); mean_X_rand = list()
 
+for (l in 1:k){
+      D[[l]] = unlist(Res_simul[[l]]$D)
+      Dx[[l]] = unlist(Res_simul[[l]]$Dx)
+      Var_XER[[l]] = unlist(Res_simul[[l]]$Var_XER)
+      Var_X[[l]] = unlist(Res_simul[[l]]$Var_X)
+      mean_XER[[l]] = unlist(Res_simul[[l]]$mean_XER)
+      mean_X[[l]] = unlist(Res_simul[[l]]$mean_X)
+      
 #####RANDOM
-D_rand = unlist(Res_simul_rand[[2]]$D)
-Dx_rand = unlist(Res_simul_rand[[2]]$Dx)
-Var_XER_rand = unlist(Res_simul_rand[[2]]$Var_XER)
-Var_X_rand = unlist(Res_simul_rand[[2]]$Var_X)
-mean_XER_rand = unlist(Res_simul_rand[[2]]$mean_XER)
-mean_X_rand = unlist(Res_simul_rand[[2]]$mean_X)
+      D_rand[[l]] = unlist(Res_simul_rand[[l]]$D)
+      Dx_rand[[l]] = unlist(Res_simul_rand[[l]]$Dx)
+      Var_XER_rand[[l]] = unlist(Res_simul_rand[[l]]$Var_XER)
+      Var_X_rand[[l]] = unlist(Res_simul_rand[[l]]$Var_X)
+      mean_XER_rand[[l]] = unlist(Res_simul_rand[[l]]$mean_XER)
+      mean_X_rand[[l]] = unlist(Res_simul_rand[[l]]$mean_X)
+}
 
-par(mfrow=c(1,1))
-plot(seq(1,length(D_rand), 1), D_rand, type = "l",col=4, xlab='time',ylab='Fractal D (random)', ylim=c(2.8,3.1), pch=1) #, solo pa cachar!
-lines(seq(1,length(D), 1), D, type = "l",col="red", xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
+s = 10
+par(mfrow=c(3,2))
+plot(seq(1,length(D_rand[[s]]), 1), D_rand[[s]], type = "l",col=4, xlab='time',ylab='Fractal D (random)', ylim=c(2.8,3.1), pch=1) #, solo pa cachar!
+lines(seq(1,length(D[[s]]), 1), D[[s]], type = "l",col="red", xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
 
-plot(seq(1,length(Dx_rand), 1), Dx_rand, type = "l",col=4, xlab='time',ylab='Fractal Dx (random)', ylim=c(2.8,3.1), pch=1) 
-lines(seq(1,length(Dx), 1), Dx, type = "l",  col="red")
+plot(seq(1,length(Dx_rand[[s]]), 1), Dx_rand[[s]], type = "l",col=4, xlab='time',ylab='Fractal Dx (random)', ylim=c(2.8,3.1), pch=1) 
+lines(seq(1,length(Dx[[s]]), 1), Dx[[s]], type = "l",  col="red")
 
-plot(seq(1,length(Var_XER_rand), 1), Var_XER_rand, type = "l",  col=4, xlab="time", ylab="Sd Effect ratio", ylim=c(0,3.1))
-lines(seq(1,length(Var_XER), 1), Var_XER, type = "l",  col="red")
+plot(seq(1,length(Var_XER_rand[[s]]), 1), Var_XER_rand[[s]], type = "l",  col=4, xlab="time", ylab="Sd Effect ratio", ylim=c(0,3.1))
+lines(seq(1,length(Var_XER[[s]]), 1), Var_XER[[s]], type = "l",  col="red")
 
 
-plot(seq(1,length(Var_X_rand), 1), Var_X_rand, type = "l",  col="blue", , xlab="time", ylab="Sd Ulva %")
-lines(seq(1,length(Var_XER), 1), Var_X, type = "l",  col="red")
+plot(seq(1,length(Var_X_rand[[s]]), 1), Var_X_rand[[s]], type = "l",  col="blue", , xlab="time", ylab="Sd Ulva %")
+lines(seq(1,length(Var_XER[[s]]), 1), Var_X[[s]], type = "l",  col="red")
 
-plot(seq(1,length(Var_XER_rand), 1), mean_XER_rand, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio", , ylim=c(-0.003,0.1))
-lines(seq(1,length(mean_XER), 1), mean_XER, type = "l",  col="red")
+plot(seq(1,length(Var_XER_rand[[s]]), 1), mean_XER_rand[[s]], type = "l",  col=4, xlab="time", ylab="Mean Effect ratio", ylim=c(-0.003,0.1))
+lines(seq(1,length(mean_XER[[s]]), 1), mean_XER[[s]], type = "l",  col="red")
 
-plot(seq(1,length(Var_XER_rand), 1), mean_X_rand, type = "l",  col=4, xlab="time", ylab="Mean Effect ratio")
-lines(seq(1,length(mean_XER), 1), mean_X, type = "l",  col="red")
+plot(seq(1,length(Var_XER_rand[[s]]), 1), mean_X_rand[[s]], type = "l",  col=4, xlab="time", ylab="Mean Alga %")
+lines(seq(1,length(mean_XER[[s]]), 1), mean_X[[s]], type = "l",  col="red")
 
 
 ###LOOP 5. unpacking the list and transforming data to vectors
