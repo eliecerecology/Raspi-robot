@@ -322,7 +322,7 @@ simulation_rand = function(replicas){
 } #######END RANDOM SIMULATION########
 
 ####CALLING RESULTS: FROM METALOOP
-k = 10
+k = 2
 simulation(k)
 simulation_rand(k)
 
@@ -356,7 +356,8 @@ for (l in 1:k){
       mean_X_rand[[l]] = unlist(Res_simul_rand[[l]]$mean_X)
 }
 
-s = 10
+s = 0
+for (s in 1:k){
 par(mfrow=c(3,2))
 plot(seq(1,length(D_rand[[s]]), 1), D_rand[[s]], type = "l",col=4, xlab='time',ylab='Fractal D (random)', ylim=c(2.8,3.1), pch=1) #, solo pa cachar!
 lines(seq(1,length(D[[s]]), 1), D[[s]], type = "l",col="red", xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
@@ -376,8 +377,8 @@ lines(seq(1,length(mean_XER[[s]]), 1), mean_XER[[s]], type = "l",  col="red")
 
 plot(seq(1,length(Var_XER_rand[[s]]), 1), mean_X_rand[[s]], type = "l",  col=4, xlab="time", ylab="Mean Alga %")
 lines(seq(1,length(mean_XER[[s]]), 1), mean_X[[s]], type = "l",  col="red")
-
-
+Sys.sleep(1)
+}
 ###LOOP 5. unpacking the list and transforming data to vectors
 varName = ncol * nrow
 for (i in 1:span){
