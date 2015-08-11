@@ -1,6 +1,6 @@
 rm(list=ls(all=TRUE))
-a = c(3, 6, 3 , 1)
-b = c(5, 2, 4, 3)
+a = c(3, 6, 3 , 1) # environment
+b = c(5, 2, 4, 3) # environment, a and b resemble 3 neighbor cell in cellulat automata
 R <- c(2, 0, 1) # reward
 p <<- as.numeric()
 p1 <<- as.numeric()
@@ -11,23 +11,24 @@ gen <- function() {
       if (a[i] > b[i]) {p[i] = R[1]} else {p[i] = 0}
       if (a[i] == b[i]) {p1[i] = R[2]} else {p1[i] = 0}
       if (a[i] < b[i]) {p2[i] = R[3]} else {p2[i] = 0}
-      t[[i]] <<- p[i] + p1[i] +p2[i]
+      t[[i]] <<- p[i] + p1[i] + p2[i]
     }
-      if (t[[1]] == max(t[[1]], t[[2]], t[[3]], t[[4]])) {print("success")} else {R <<- sample(R)} & {do.call(gen1, list())}
+      if (t[[1]] == max(t[[1]], t[[2]], t[[3]], t[[4]])) {print(which.max(t))} else {R <<- sample(R)} & {do.call(gen1, list())}
 }
-
+which.max(a)
 gen1 <- function() {
   for (i in 1:length(a)){
     if (a[i] > b[i]) {p[i] = R[1]} else {p[i] = 0}
     if (a[i] == b[i]) {p1[i] = R[2]} else {p1[i] = 0}
     if (a[i] < b[i]) {p2[i] = R[3]} else {p2[i] = 0}
-    t[[i]] <<- p[i] + p1[i] +p2[i]
+    t[[i]] <<- p[i] + p1[i] + p2[i]
   }
-  if (t[[1]] == max(t[[1]], t[[2]], t[[3]], t[[4]])) {print("success")} else {R <<- sample(R)} #& {do.call(gen1, list())}
+  which.max(t)
+  if (t[[1]] == max(t[[1]], t[[2]], t[[3]], t[[4]])) {print(which.max(t))} else {R <<- sample(R)} #& {do.call(gen1, list())}
 }
 
 gen()
-R
+t
 t[[5]]#, t[[2]], t[[3]]
 
 
@@ -39,8 +40,8 @@ sample(a)
 do.call(sum, t)
 max(t[[1]], t[[2]], t[[3]])
 
-
-
+jojo = list(sa=21, se = 22, si =34)
+(which.max(jojo))
 
 
 
