@@ -1,26 +1,46 @@
 rm(list=ls(all=TRUE))
-genome = matrix(round(runif(16, 1, 6)), 4, 2)
-mean(genome[,1])
-performance = matrix(round(runif(16, 1, 4)), 4, 2)
-fitness = matrix(1, 5, 2)
-#a = c(3, 6, 3 , 1) # environment
-#b = c(5, 2, 4, 3) # environment, a and b resemble 3 neighbor cell in cellulat automata
-#R <- c(2, 0, 1) # reward
-p <<- as.numeric()
-p1 <<- as.numeric()
-p2 <<- as.numeric()
-t = list()
-gen <- function() {
-  for (j in 1:2){}
-    for (i in 1:length(a)){
-      if (genome[j, i] >  mean(genome[ ,i ]) {fitness[j ,i] = performance[j, i]} else {fitness[j ,i] = 0}
-      if (genome[j, i] == mean(genome[ ,i ]) {fitness[j ,i] = performance[j, i]} else {fitness[j ,i] = 0}
-      if (genome[j, i] <  mean(genome[ ,i ]) {fitness[j ,i] = performance[j, i]} else {fitness[j ,i] = 0}
-      t[[i]] <<- fitness[1] + fitness[i] + fitness[i] + fitness[]
+ngenes = 4
+nrow = 4
+span <- 1:10 # individuals
+
+Pop_genes <- sapply(span, function(x) {
+  matrix(round(runif(nrow*ngenes, 1, 6)), ncol = ngenes, nrow = nrow)
+}, simplify = FALSE) # U = environmental noise for open control
+
+fitness <- sapply(span, function(x) {
+  matrix(round(runif(nrow*ngenes, 1, 1)), ncol = ngenes, nrow = nrow)
+}, simplify = FALSE) # U = environmental noise for open control
+
+t <- sapply(span, function(x) {
+  vector()
+}, simplify = FALSE) # U = environmental noise for open control
+t[1]
+#Pop_genes[[1]][1 ,4]
+
+#gen <- function() {}
+for (k in 1:length(span)){  
+  for (j in 1:2) { #columns = genes
+    for (i in 1:4) { # intrones
+      if (Pop_genes[[k]][i ,j] >  mean(Pop_genes[[k]][,1])) {fitness[[k]][i ,j] = 6} 
+      if (Pop_genes[[k]][i ,j] ==  mean(Pop_genes[[k]][,1])) {fitness[[k]][i ,j] = -1} 
+      if (Pop_genes[[k]][i ,j] <  mean(Pop_genes[[k]][,1])) {fitness[[k]][i ,j] = -2} 
     }
-      if (t[[1]] == max(t[[1]], t[[2]], t[[3]], t[[4]])) {print(which.max(t))} else {R <<- sample(R)} & {do.call(gen1, list())}
+    #print(genome[ ,which.max(colSums(genome))])
+    t[[k]] <- sum(fitness[[k]][, j])
+    #genome[,length(ncol(genome)) + 1] = genome[,which.max(ncol(genome))]
+  }
+  
 }
-which.max(a)
+t[[4]]
+
+
+dim(genome)
+which.max(t) - t[[4]]
+which.max(colSums(genome))
+genome  
+genome[,length(ncol(genome)) + 1] = genome[,which.max(ncol(genome))]  
+genome[,length(ncol(genome)) + 2] = c(3,3,3,3)  
+  
 gen1 <- function() {
   for (i in 1:length(a)){
     if (a[i] > b[i]) {p[i] = R[1]} else {p[i] = 0}
