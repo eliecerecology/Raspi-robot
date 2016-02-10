@@ -38,7 +38,7 @@ simulation_Nat = function(replicas){
     
     yy <- predict(g.dummy, newdata=xy, nsim=1) #random
     #yy$sim1 = yy$sim1 + max(yy$sim1)  # calibrating topography 2 -5 cm
-    yy$sim1 = yy$sim1 + max(yy$sim1) #+ rpois(3600, 70.3) # calibrating topography 2 -5 cm # calibrating topography 2 -5 cm
+    yy$sim1 = yy$sim1 + max(yy$sim1) + rpois(3600, 70.3) # calibrating SUPERnatural 50-100
     
     #yy$sim1 = (runif(3600, min(yy$sim1), max(yy$sim1))) # RANDOM topography
     
@@ -125,12 +125,13 @@ simulation_Nat = function(replicas){
     X[[1]] =     round(abs(vecTopo1 + rnorm(ncol*nrow, 0, 2))) # adding individuals to the starting point time zero
     XOpen[[1]] = round(abs(vecTopo1 + rnorm(ncol*nrow, 0, 2))) # adding individuals to the starting point
     
-    pb <- txtProgressBar(title = "modelling...!", min = 0, max = (span - 1), style = 3)
+    pb <- txtProgressBar(min = 0, max = (span - 1), style = 3)
     for (t in 1: (span - 1)){ # number of matrices
       for (i in 1: (ncol * nrow)){
         X[[t + 1]][i] = X[[t]][i] * exp(rEnc * (Ua[[t]][[i]] / 26.7) * (1 - (X[[t]][i] / K))) + Z[[t]][i] #solo Ulva
         XOpen[[t + 1]][i] = XOpen[[t]][i] * exp(rOpen * (Ug[[t]][[i]] / 26.7) * (1 - (XOpen[[t]][i] / K))) + Z[[t]][i] 
-      } # 
+               
+        } # 
       setTxtProgressBar(pb, t)
     }
     
