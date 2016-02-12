@@ -26,8 +26,8 @@ simulation_Nat = function(replicas){
     rEnc = 0.7 ;rOpen = 0.3
     
     #weather <- 19 + 15 * cos(0.02 * (1 : span)) * runif(span) #5 - 33 degrees celcius #old one
-    #weather <- runif(364, min(weather), max(weather)) # random
-    weather <- NatWeather$temp # natural Mystic # data starting dec
+    weather <- runif(364, min(6), max(35)) # random
+    #weather <- NatWeather$temp # natural Mystic # data starting dec
     
     xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of coordinates
     names(xy) <- c('x','y') # coordinates, x = columns, y = rows # gives the names 
@@ -38,9 +38,9 @@ simulation_Nat = function(replicas){
     
     yy <- predict(g.dummy, newdata=xy, nsim=1) #random
     #yy$sim1 = yy$sim1 + max(yy$sim1)  # calibrating topography 2 -5 cm
-    yy$sim1 = yy$sim1 + max(yy$sim1) + rpois(3600, 70.3) # calibrating SUPERnatural 50-100
+    #yy$sim1 = yy$sim1 + max(yy$sim1) + rpois(3600, 70.3) # calibrating SUPERnatural 50-100
     
-    #yy$sim1 = (runif(3600, min(yy$sim1), max(yy$sim1))) # RANDOM topography
+    yy$sim1 = (runif(3600, min(50), max(101))) # RANDOM topography
     
     topo <- sapply(aux, function(x) {
       matrix(yy$sim1, ncol = ncol, nrow = nrow)
@@ -55,13 +55,13 @@ simulation_Nat = function(replicas){
       matrix(1, ncol = ncol, nrow = nrow)
     }, simplify = FALSE) # U = environmental noise for open control
     
-    Ua <- sapply(aux, function(x) {
-      matrix(1, ncol = ncol, nrow = nrow)
-    }, simplify = FALSE) # envorinmental noise filling after calculation
+    #Ua <- sapply(aux, function(x) {
+    #  matrix(1, ncol = ncol, nrow = nrow)
+    #}, simplify = FALSE) # envorinmental noise filling after calculation
     
-    Ug <- sapply(aux, function(x) { #for open exclosures
-      matrix(1, ncol = ncol, nrow = nrow)
-    }, simplify = FALSE) # envorinmental noise filling after calculation
+    #Ug <- sapply(aux, function(x) { #for open exclosures
+    #  matrix(1, ncol = ncol, nrow = nrow)
+    #}, simplify = FALSE) # envorinmental noise filling after calculation
     
     Y = matrix(0, nrow, ncol) #Tidal matrix
     
@@ -75,38 +75,40 @@ simulation_Nat = function(replicas){
     
     #LOOP 1: 
     for (i in 1:length(weather)){
-      U[[i]] = topo[[i]] * weather[i] + Y
-      Uopen[[i]] = topo[[i]] * weather[i] + t_extra[i] 
-      Ua[[i]] = -0.26 * U[[i]]^2     + 10.23*U[[i]]
-      Ug[[i]] = -0.26 * Uopen[[i]]^2 + 10.23*Uopen[[i]]
+      U[[i]] = topo[[i]] * weather[i] * rEnc / 1000  #+ Y
+      Uopen[[i]] = (topo[[i]] * weather[i] * rOpen + t_extra[i]) / 1000 
+      #U[[i]] = topo[[i]] * weather[i] #+ Y
+      #Uopen[[i]] = topo[[i]] * weather[i] + t_extra[i] 
+      #Ua[[i]] = -0.26 * U[[i]]^2     + 10.23*U[[i]]
+      #Ug[[i]] = -0.26 * Uopen[[i]]^2 + 10.23*Uopen[[i]]
       #this function optimize to 17 degrees the maximum growth rate
       #and reduce it near 0 and 40
     } 
     
-    #LOOP 2: to remove negative values
-    for (j in 1:span){ #THIS will fill noise matrix with extra grazing
-      for (i in 1:(nrow * ncol)){
-        if (Ug[[j]][i] < 0){
-          Ug[[j]][i] = 0
-        } else {
-          if (Ug[[j]][i] > 40){ # 40
-            Ug[[j]][i] = 0
-          }   
-        }
-      }
-    }
+    ##LOOP 2: to remove negative values
+    #for (j in 1:span){ #THIS will fill noise matrix with extra grazing
+    #  for (i in 1:(nrow * ncol)){
+    #    if (Ug[[j]][i] < 0){
+    #      Ug[[j]][i] = 0
+    #    } else {
+    #      if (Ug[[j]][i] > 40){ # 40
+    #        Ug[[j]][i] = 0
+    #      }   
+    #    }
+    #  }
+    #}
     
-    for (j in 1:span){ # noise matrix without grazing
-      for (i in 1:(nrow * ncol)){
-        if (Ua[[j]][i] < 0){
-          Ua[[j]][i] = 0
-        } else {
-          if (Ua[[j]][i] > 40){ # 40
-            Ua[[j]][i] = 0
-          }   
-        }
-      }
-    }
+    #for (j in 1:span){ # noise matrix without grazing
+    #  for (i in 1:(nrow * ncol)){
+    #    if (Ua[[j]][i] < 0){
+    #      Ua[[j]][i] = 0
+    #    } else {
+    #      if (Ua[[j]][i] > 40){ # 40
+    #        Ua[[j]][i] = 0
+    #      }   
+    #    }
+    #  }
+    #}
     
     X <- sapply(aux, function(x) {
       matrix(1, ncol = ncol, nrow = nrow)
@@ -128,9 +130,10 @@ simulation_Nat = function(replicas){
     pb <- txtProgressBar(min = 0, max = (span - 1), style = 3)
     for (t in 1: (span - 1)){ # number of matrices
       for (i in 1: (ncol * nrow)){
-        X[[t + 1]][i] = X[[t]][i] * exp(rEnc * (Ua[[t]][[i]] / 26.7) * (1 - (X[[t]][i] / K))) + Z[[t]][i] #solo Ulva
-        XOpen[[t + 1]][i] = XOpen[[t]][i] * exp(rOpen * (Ug[[t]][[i]] / 26.7) * (1 - (XOpen[[t]][i] / K))) + Z[[t]][i] 
-               
+        X[[t + 1]][i] = X[[t]][i] * exp(U[[t]][[i]] * (1 - (X[[t]][i] / K))) + Z[[t]][i] #solo Ulva
+        XOpen[[t + 1]][i] = XOpen[[t]][i] * exp(Uopen[[t]][[i]] * (1 - (XOpen[[t]][i] / K))) + Z[[t]][i] 
+        #X[[t + 1]][i] = X[[t]][i] * exp(rEnc * (Ua[[t]][[i]] / 26.7) * (1 - (X[[t]][i] / K))) + Z[[t]][i] #solo Ulva
+        #XOpen[[t + 1]][i] = XOpen[[t]][i] * exp(rOpen * (Ug[[t]][[i]] / 26.7) * (1 - (XOpen[[t]][i] / K))) + Z[[t]][i]        
         } # 
       setTxtProgressBar(pb, t)
     }
@@ -530,7 +533,7 @@ simulation_rand = function(replicas){
 }#######END function SIMULATION########
   
 ####CALLING RESULTS: FROM METALOOP
-k = 10
+k = 5
 
 simulation_Nat(k)   #Natural
 simulation(k)       #artificial
@@ -539,7 +542,8 @@ loc1 = setwd("C:/Users/localadmin_eliediaz/Documents/MEGA/")
 s = 1
 for (s in 1:k){
   #pdf(paste("/home/eliecer/MEGA/Natsimul/extra", s, ".pdf"))
-  pdf(paste("C:/Users/localadmin_eliediaz/Documents/MEGA/Natsimul/MegaNatural", s, ".pdf"))
+  #pdf(paste("C:/Users/localadmin_eliediaz/Documents/MEGA/Natsimul/MegaNatural", s, ".pdf"))
+  #pdf(paste("C:/Users/localadmin_eliediaz/Documents/MEGA/Natsimul/plus", s, ".pdf"))
   par(mfrow=c(3,1))
   plot(seq(1,364, 1), Res_simul_Nat[[s]]$DXOpen, type = "l",col=4, xlab='time',ylab='Fractal D', ylim=c(2.8,3.1), pch=1) #, solo pa cachar!
   lines(seq(1,364, 1), Res_simul_Nat[[s]]$DX, type = "l",col="red", xlab='time',ylab='Fractal D', pch=1) #, solo pa cachar!
@@ -547,7 +551,7 @@ for (s in 1:k){
   lines(seq(1,364, 1), Res_simul_Nat[[s]]$Mean_X, type = "l",col="red", xlab='time', pch=1) #, solo pa cachar!
   plot(seq(1,364, 1), Res_simul_Nat[[s]]$Var_XOpen, type = "l",col=4, xlab='time',ylab='Sd_cover (%)', pch=1) #, solo pa cachar!
   lines(seq(1,364, 1), Res_simul_Nat[[s]]$Var_X, type = "l",col="red", xlab='time', pch=1) #, solo pa cachar!
-  dev.off()
+  #dev.off()
 }
 save(Res_simul_Rand, file="C:/Users/localadmin_eliediaz/Documents/MEGA/Natsimul/Res_simul_Nat4.rda")
 #load("Res_simul_Nat.rda.rda")
