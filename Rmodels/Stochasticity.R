@@ -14,9 +14,9 @@ noise = function(size,k,w){ # 200,0.5, 10
 }
 
 # Environmental noise# --------------------
-F = 60     # simulation time span 
-kappa = 0 # environmental autocorrelation
-sd = 1   # environmental amplitude (standard deviation)
+F = 10000     # simulation time span 
+kappa = -0.2 # environmental autocorrelation
+sd = 15   # environmental amplitude (standard deviation)
 
 Y = noise(F,kappa,sd) # call function with same structure of elements,  
 #noise to generate an environmental time series
