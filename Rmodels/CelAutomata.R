@@ -2,7 +2,7 @@ rm(list=ls(all=TRUE))
 #install.packages("plotrix")
 library(plotrix)
 
-row = 10; col = 10; span = 25
+row = 100; col = 100; span = 250
 
 re = sample(seq(from = 0, to = 1, by = 1), size = row*col, replace = TRUE)
 j <- matrix(re, nrow= row, ncol =col)
