@@ -1,62 +1,40 @@
 rm(list=ls(all=TRUE))
+#install.packages("plotrix")
+library(plotrix)
 
-re = sample(seq(from = 0, to = 1, by = 1), size = 9, replace = TRUE)
-d = matrix(5, 3, 3) # destiny
+row = 10; col = 10; aux = 10
 
-c <- matrix(re,3,3)
-c_0 =c
+j <- sapply(aux, function(x) {
+  matrix(seq(1,100,1), nrow = row, ncol = col) 
+}, simplify = FALSE)
+
+re = sample(seq(from = 0, to = 1, by = 1), size = row*col, replace = TRUE)
+j <- matrix(re, nrow= row, ncol =col)
+j
+
+j[1:col, 1]   <- 0 
+j[1, 1: row]  <- 0
+j[1:row, col] <- 0
+j[row, 1:col] <- 0
+
+j
+h <- matrix(NaN, row - 2 , col - 2)
+
+for (t in 1: (row-2)){
+  for (i in 1:(col-2)){
+    h[t, i] <- sum(j[t: (2 + t) , i : (2 + i) ]) - j[t + 1, 1 + i]
+    if (h[t, i] >= 3){ 
+      h[t, i] = 1} else {
+      h[t, i] = 0}
+  
+  }
+}
+
+h
+au=matrix(1:16, 4, 4)
+
+colnames(h) <- c("X1", "X2", "X3", "X4")
+rownames(h) <- c("Y1", "Y2", "Y3", "Y4")
+color2D.matplot(h,c(0,1),c(0,0),c(0,0),show.legend=TRUE, show.values=F)
 
 
-clu = c[1,2] + c[2,2] + c[2,1]
-cll = c[3,2] + c[2,2] + c[2,1]
-cru = c[1,2] + c[2,2] + c[2,3]
-crl = c[3,2] + c[2,2] + c[2,3]
-
-uni = c[1,1] + c[1,2] + c[2,2] + c[2,3] + c[1,3]
-dos = c[1,1] + c[1,3] + c[2,1] + c[2,2] + c[2,3]
-tre = c[1,1] + c[1,2] + c[1,3] + c[2,1] + c[2,3] + c[3,1] + c[3,2] + c[3,3]
-cua = c[2,1] + c[2,2] + c[2,3] + c[3,1] + c[3,3]
-cin = c[1,2] + c[2,2] + c[3,2] + c[1,3] + c[3,3]
-
-if (clu > 3){ 
-  d[1,1] = 1} else {
-    d[1,1] = 0}
-
-if (cll > 3){ 
-  d[3,1] = 1} else {
-    d[3,1] = 0}
-
-
-if (cru > 3){ 
-  d[1,3] = 1} else {
-    d[1,3] = 0}
-
-
-if (crl > 3){ 
-  d[1,3] = 1} else {
-    d[1,3] = 0}
-
-##########################
-if (uni > 3){ 
-  d[2,1] = 1} else {
-    d[2,1] = 0}
-
-if (dos > 3){ 
-  d[1,2] = 1} else {
-    d[1,2] = 0}
-
-if (tre > 3){ 
-  d[2,2] = 1} else {
-    d[2,2] = 0}
-
-if (cua > 3){ 
-  d[3,2] = 1} else {
-    d[3,2] = 0}
-
-if (cin > 3){ 
-  d[2,3] = 1} else {
-    d[2,3] = 0}
-
-d
-c
-d
