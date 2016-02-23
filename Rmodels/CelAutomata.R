@@ -1,3 +1,4 @@
+install.packages("plotrix")
 library(plotrix)
 rm(list=ls(all=TRUE))
 #install.packages("plotrix")
@@ -11,8 +12,9 @@ j <- sapply(1:span, function(x) {
 
 
 j[[1]] <- matrix(0, nrow= row, ncol =col)
+j[[1]] <- edit(j[[1]])
 
-j[[1]][35, 36] <- 1; j[[1]][36, 37] <- 1; j[[1]][37, 37] <- 1; j[[1]][37, 36] <- 1; j[[1]][37, 35] <- 1
+#j[[1]][35, 36] <- 1; j[[1]][36, 37] <- 1; j[[1]][37, 37] <- 1; j[[1]][37, 36] <- 1; j[[1]][37, 35] <- 1
 
 j[[1]][1:col, 1]   <- 0
 j[[1]][1, 1: row]  <- 0
