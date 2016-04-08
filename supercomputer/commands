@@ -1,0 +1,6 @@
+mpirun.openmpi -np 2 -machinefile /home/pi/mpi_testing/machinefile python sct3.py
+
+copiar
+scp /home/pi/Desktop/sct/sct3.py pi@192.168.1.4:/home/pi/Desktop/sct
+
+
