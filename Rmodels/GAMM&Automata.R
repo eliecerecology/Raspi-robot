@@ -10,12 +10,9 @@ Mac <- read.table("All2.txt",
                   dec = ".")
 library(fields); library(sp)
 library(geoR); require(gridExtra)
-library(lattice)  
-library(lme4); library(ggplot2);  library(maptools)
-library(sp); library(glmmADMB)
-library(MASS); library(gamlss)  #For GAMs
-library(gstat); library(mgcv)
-library(gamlss.dist); library(gamlss.add)
+library(lattice);library(lme4); library(maptools)
+library(sp); library(MASS); library(gamlss)  #For GAMs
+library(gstat); library(mgcv); library(gamlss.dist); library(gamlss.add)
 library(plotrix)
 source("HighstatLibV9.R") 
 source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
