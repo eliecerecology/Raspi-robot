@@ -1,22 +1,19 @@
 rm(list=ls(all=TRUE))
-#setwd("/home/eliecer/Documents/Dropbox/DATA_CLIMATE") #LINUX
+
 setwd("/home/ellis/Documents/Storage/DATA_CLIMATE") #LINUX MEGA
-setwd("C:/Users/localadmin_eliediaz/Documents/MEGA/Storage/DATA_CLIMATE")
-#Mac <- read.table("MonthNestedHabitat1.0.txt", 
-#                   header = TRUE,
-#                   dec = ".")
+setwd("C:/Users/localadmin_eliediaz/Documents/MEGA/Storage/DATA_CLIMATE") #Windows
+
 Mac <- read.table("All2.txt", 
                   header = TRUE,
                   dec = ".")
-library(fields); library(sp)
-library(geoR); require(gridExtra)
-library(lattice);library(lme4); library(maptools)
-library(sp); library(MASS); library(gamlss)  #For GAMs
+library(fields); library(sp); library(geoR); require(gridExtra)
+library(lattice);library(lme4); library(maptools); library(sp); library(MASS); library(gamlss)  #For GAMs
 library(gstat); library(mgcv); library(gamlss.dist); library(gamlss.add)
-library(plotrix)
+library(plotrix); library(scatterplot3d); library(rgl)
+
+
 source("HighstatLibV9.R") 
 source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
-library(scatterplot3d); library(rgl)
 
 Mac$year <- as.factor(Mac$year)
 Mac$Month <- as.factor(Mac$Month)
@@ -34,7 +31,6 @@ Mac$Response <- as.numeric(round(Mac$Response, digits = 0))
 Mac = Mac[!Mac$Micro==138, ]
 #What is the percentage of zeros?
 100 * sum(Mac$Response == 0, na.rm = TRUE) / nrow(Mac)
-
 
 ################### to standardize the continuous covariates.
 
@@ -95,7 +91,7 @@ ran2    <- ranef(G1_4$lme, level = 2)
 bet1    <- fixef(G1_4$lme)
 
 
-###############################checking
+###############################TO PLOT GAMM
 
 X2 <- expand.grid(
   Elev = seq(from = -1.629312, to = 1.917677, length = 12),
@@ -119,11 +115,11 @@ OT1       <- O1[O1$Treat == "C",]
 Xc5 <- model.matrix(~ Elev + Micro + Hab + Treat, #c => count part
                     data = OT1)
 
-temp <- seq(11, 22, 5)
+temp <- seq(11, 22, 5) # 5 values only
 climChange <- -0.033*(temp^2) + 1.006*temp - 8.24 # transform temp to intercept scale
 
 
-a <- as.numeric()
+a <- as.numeric() #a counting variable to graph, it can be ommitted 
 for (i in 1:length(climChange)){
   Sys.sleep(0.2)
   a[i] = i + 12
@@ -162,19 +158,19 @@ for (i in 1:length(climChange)){
 }
 
 
-#SIMULATION
+##################################SIMULATION, HERE I created a matrix and time span
 
 ncol = 6; nrow = 6; span = 3 #days
-aux <- 1:span #how many matrices
+aux <- 1:span                #how many matrices?
 range(Mac$Elev)
 
-xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of coordinates
+xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of patches
 
 names(xy) <- c('x','y') # coordinates, x = columns, y = rows # gives the names 
 g.dummy <- gstat(formula=z~ 1, locations=~x+y,
                  dummy=T, beta=c(1,0.01,0.005), model=vgm(psill=5, 
                                                           range=15, model='Exp'), nmax=60)
-
+#1 factor 1 elevation
 yy <- predict(g.dummy, newdata=xy, nsim=1) #random
 yy$sim2 <- yy$sim1*18 - 51
 
@@ -186,17 +182,17 @@ topo.std <- (yy$sim2 - mean(yy$sim2)) / sd(yy$sim2)
 
 topo <- sapply(aux, function(x) {
   matrix(topo.std, ncol = ncol, nrow = nrow)
-}, simplify = FALSE) # TOPOGRAPHY
+}, simplify = FALSE) # TOPOGRAPHY LIST of MATRICES
 
-#Micrograzers autocorrelation generation
+#2. factor 2 Micrograzers autocorrelation generation
 
 g.dummy_micro <- gstat(formula=z~ 1, locations=~x+y,
                        dummy=T, beta=c(1,0.01,0.005), model=vgm(psill=5, 
                                                                 range=15, model='Exp'), nmax=60)
 
 zz <- predict(g.dummy, newdata=xy, nsim=1) #random
-zz$sim1
-zz$sim2 <- zz$sim1*-41 - 4
+
+zz$sim2 <- zz$sim1*-41 - 4 # in the natural range
 
 #gridded(zz) = ~ x + y
 #spplot(obj=zz[2], col.regions=colorRampPalette(c('black', 'gray80','red')))
@@ -205,13 +201,13 @@ zz_std <- (zz$sim2 - mean(zz$sim2)) / sd(zz$sim2) #Standarized micrograzers
 
 micro_mat <- sapply(aux, function(x) {
   matrix(zz_std, ncol = ncol, nrow = nrow)
-}, simplify = FALSE) # U = environmental noise
+}, simplify = FALSE) # list of matrix for MICROGRAZERS
 
 
 #Populating
 alga <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
-}, simplify = FALSE) # U = environmental noise
+}, simplify = FALSE) # LIST oF MATRICES TO BE POPULATED, EXCEPT Matrix[[1]], which will be populated using GAMM
 
 Pra <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
@@ -221,18 +217,17 @@ Pra <- sapply(aux, function(x) {
 for (i in 1:span){
   for (j in 1:(nrow*ncol)){
     X2 <- expand.grid(
-      Elev = topo[[i]][j], #each value of elev in each cell
-      Micro = micro_mat[[i]][j], #each value of grazer in each cell
+      Elev = topo[[i]][j], #Take each value of elev in each patch of TOPOGRAPHY matrix
+      Micro = micro_mat[[i]][j], #TAKE each value of grazer in each patceh
       Treat = levels(Mac$Treat),
       Hab = levels(Mac$Hab)
     )
-    O1  <- X2[X2$Hab == "2",] #1 open rock, 2 = tidal pools
-    OT1 <- O1[O1$Treat == "C",] #T = exclosure, #C = open access to grazers
+    O1  <- X2[X2$Hab == "2",] #1 open rock, 2 = tidal pools, SO TAKE TIDAL POOL
+    OT1 <- O1[O1$Treat == "C",] #T = exclosure, #C = open access to grazers, SO TAKE OPEN
     
-    Pra[[i]][j] <- as.numeric(predict(G1_4$gam, OT1, se = F, type = "link")) #fixed effects
-    print(j) 
-    print(Pra[[i]][j])
-    alga[[i]][j] <- exp(Pra[[i]][j] + climChange[i]) # fixed + random effects
+    Pra[[i]][j] <- as.numeric(predict(G1_4$gam, OT1, se = F, type = "link")) #Predict expected values in GAMM without random effects
+    
+    alga[[i]][j] <- exp(Pra[[i]][j] + climChange[i]) # This populate patch by patch using fixed + random effects per day
     
     
   }
@@ -245,12 +240,12 @@ for (i in 1:span){
                   nslices = 20,
                   show.values=F)
   
-  Sys.sleep(1.7)
+  Sys.sleep(1.7) #delays the code to see some animation
 }
 
 alga_v = vector()
 alga_v1 = unlist(alga)
-alga_v2 = data.frame(t1 = alga_v1[1:36], t2 = alga_v1[37:72], t3 = alga_v1[73:108])
+alga_v2 = data.frame(t1 = alga_v1[1:ncol*ncol], t2 = alga_v1[ncol*ncol + 1:ncol*ncol*2], t3 = alga_v1[ncol*ncol*2+1:ncol*ncol*span])
 cix = cbind(yy, alga_v2)
 gridded(cix) = ~ y + x
 
