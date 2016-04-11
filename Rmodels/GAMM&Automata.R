@@ -7,7 +7,7 @@ Mac <- read.table("All2.txt",
                   header = TRUE,
                   dec = ".")
 library(fields); library(sp); library(geoR); require(gridExtra)
-library(lattice);library(lme4); library(maptools); library(sp); library(MASS); library(gamlss)  #For GAMs
+library(lattice);library(lme4); library(sp); library(MASS); library(gamlss)  #For GAMs
 library(gstat); library(mgcv); library(gamlss.dist); library(gamlss.add)
 library(plotrix); library(scatterplot3d); library(rgl)
 
@@ -70,25 +70,10 @@ summary(G1_4$gam)
 #XHab2         1.3884564 0.2065314 734  6.722739  0.0000
 #XTreatT       2.5490041 0.1877689 734 13.575223  0.0000
 #Xs(Micro)Fx1 -0.4750284 1.1883457 734 -0.399739  0.6895
-#Correlation: 
-#  X(Int) XElev  XHab2  XTretT
-#XElev        -0.038                     
-#XHab2        -0.546  0.146              
-#XTreatT      -0.529 -0.031  0.040       
-#Xs(Micro)Fx1  0.013 -0.117  0.011 -0.009
 
-#Standardized Within-Group Residuals:
-#  Min         Q1        Med         Q3        Max 
-#-0.9734132 -0.4229894 -0.2913243 -0.1261893  7.2267975 
-
-#Number of Observations: 752
-#Number of Groups: 
-#  g Temp %in% g 
-#1          14 
-
-ran1    <- ranef(G1_4$lme, level = 1)   #<-----------------------
-ran2    <- ranef(G1_4$lme, level = 2)
-bet1    <- fixef(G1_4$lme)
+#ran1    <- ranef(G1_4$lme, level = 1)   #<-----------------------
+#ran2    <- ranef(G1_4$lme, level = 2)
+#bet1    <- fixef(G1_4$lme)
 
 
 ###############################TO PLOT GAMM
@@ -100,13 +85,12 @@ X2 <- expand.grid(
   Hab = levels(Mac$Hab)
 )
 
-X2 <- expand.grid(
-  Elev = -1.629312,
-  Micro = -1.194984,
-  Treat = levels(Mac$Treat),
-  Hab = levels(Mac$Hab)
-)
-
+#X2 <- expand.grid(
+#  Elev = -1.629312,
+#  Micro = -1.194984,
+#  Treat = levels(Mac$Treat),
+#  Hab = levels(Mac$Hab)
+#)
 
 O1        <- X2[X2$Hab == "2",] #& X1[X1$Treat == "C", ]
 #P1        <- X2[X2$Hab == "2",]
@@ -160,7 +144,7 @@ for (i in 1:length(climChange)){
 
 ##################################SIMULATION, HERE I created a matrix and time span
 
-ncol = 6; nrow = 6; span = 3 #days
+ncol = 40; nrow = 40; span = 3 #days
 aux <- 1:span                #how many matrices?
 range(Mac$Elev)
 
@@ -232,44 +216,19 @@ for (i in 1:span){
     
   }
   cellcol<-matrix(seq(0,36),1) #gives color scale
-  
-  color2D.matplot(alga[[i]], #extremes = c(0,100),
-                  c(0,1), c(0,0),c(0,0),
-                  xrange = c(80, 90),
-                  show.legend= T,
-                  nslices = 20,
-                  show.values=F)
-  
-  Sys.sleep(1.7) #delays the code to see some animation
-}
-
-alga_v = vector()
-alga_v1 = unlist(alga)
-alga_v2 = data.frame(t1 = alga_v1[1:ncol*ncol], t2 = alga_v1[ncol*ncol + 1:ncol*ncol*2], t3 = alga_v1[ncol*ncol*2+1:ncol*ncol*span])
-cix = cbind(yy, alga_v2)
-gridded(cix) = ~ y + x
-
-min = round(min(unlist(lapply(alga_v1,FUN=min)))) #legend bar max
-max = round(max(unlist(lapply(alga_v1,FUN=max)))) #legen bar min
-
-
-a = 0
-for (i in 5:span){ #(i in 1:span){
-  a[i] = i + 4
-  tmp = spplot(obj=cix[i], main = paste(a[i], c("day"), round(a[i]), c("Temp"), c("D"), sep = ":"), scales = list(draw = T), col.regions = colorRampPalette(c('white', "green", "black")), at = 1:110)
-  print(tmp) #, split=c(2,1,3,3), more=T)
-  Sys.sleep(0.1)
+  #image.plot(matrix((data=alga[[i]]), ncol=ncol, nrow=nrow), zlim = c(0, length(alga)))
+  # Sys.sleep(1.7) #delays the code to see some animation
 }
 
 #################PART 2 Cellular automata
 #globals:
-row = 60; col = 60; span = 10 #span or steps, col =columns, row = rows in the matrix
+row = nrow; col = ncol; span = 3 #span or steps, col =columns, row = rows in the matrix
 
 plat <- sapply(1:span, function(x) {matrix(0, nrow = row, ncol = col)}, simplify = FALSE) # rocky shore platform
 
-plat[[1]] <- matrix(0, nrow= row, ncol =col) #initial state HERE DATA WILL GO, and evolution of states
-plat[[1]] <- edit(plat[[1]]) #if I want to check something special
-
+#plat[[1]] <- matrix(0, nrow= row, ncol =col) #initial state HERE DATA WILL GO, and evolution of states
+#plat[[1]] <- edit(plat[[1]]) #if I want to check something special
+plat[[1]] <- alga[[1]]
 base_matrix = matrix(0, row, col) #the size of the grid
 #asis = asistant matrix to store the neighbors sums
 asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix, col - 2= numero de matrices, and 2 = numero de lists 
@@ -295,8 +254,10 @@ for (k in 1:span){        #steps
   plat[[k + 1]] <- Reduce('+', asis_1) + plat[[k]]
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
+  image.plot(matrix((data=plat[[k]]), ncol=ncol, nrow=nrow), zlim = c(0,60 ))
+  Sys.sleep(1)
 }
-
+plat[[56]]
 
 
 
