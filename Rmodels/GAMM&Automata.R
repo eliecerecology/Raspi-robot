@@ -222,7 +222,7 @@ for (i in 1:span){
 
 #################PART 2 Cellular automata
 #globals:
-row = nrow; col = ncol; span = 3 #span or steps, col =columns, row = rows in the matrix
+row = nrow; col = ncol; span = 7 #span or steps, col =columns, row = rows in the matrix
 
 plat <- sapply(1:span, function(x) {matrix(0, nrow = row, ncol = col)}, simplify = FALSE) # rocky shore platform
 
