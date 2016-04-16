@@ -99,7 +99,8 @@ OT1       <- O1[O1$Treat == "C",]
 Xc5 <- model.matrix(~ Elev + Micro + Hab + Treat, #c => count part
                     data = OT1)
 
-temp <- seq(11, 22, 5) # 5 values only
+#temp <- seq(11, 22, 5) # 5 values only
+temp <- seq(5, 28, 1)
 climChange <- -0.033*(temp^2) + 1.006*temp - 8.24 # transform temp to intercept scale
 
 
@@ -144,9 +145,8 @@ for (i in 1:length(climChange)){
 
 ##################################SIMULATION, HERE I created a matrix and time span
 
-ncol = 40; nrow = 40; span = 3 #days
+ncol = 4; nrow = 4; span = length(climChange) #days
 aux <- 1:span                #how many matrices?
-range(Mac$Elev)
 
 xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of patches
 
@@ -196,10 +196,10 @@ alga <- sapply(aux, function(x) {
 Pra <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
 }, simplify = FALSE) # 
+length(climChange)
 
-
-for (i in 1:span){
-  for (j in 1:(nrow*ncol)){
+for (i in 1:length(climChange)){
+  for (j in 1:(nrow*ncol)){ #fill them in order, not as a matrix, it is easier
     X2 <- expand.grid(
       Elev = topo[[i]][j], #Take each value of elev in each patch of TOPOGRAPHY matrix
       Micro = micro_mat[[i]][j], #TAKE each value of grazer in each patceh
@@ -210,15 +210,25 @@ for (i in 1:span){
     OT1 <- O1[O1$Treat == "C",] #T = exclosure, #C = open access to grazers, SO TAKE OPEN
     
     Pra[[i]][j] <- as.numeric(predict(G1_4$gam, OT1, se = F, type = "link")) #Predict expected values in GAMM without random effects
-    
     alga[[i]][j] <- exp(Pra[[i]][j] + climChange[i]) # This populate patch by patch using fixed + random effects per day
-    
     
   }
   cellcol<-matrix(seq(0,36),1) #gives color scale
   #image.plot(matrix((data=alga[[i]]), ncol=ncol, nrow=nrow), zlim = c(0, length(alga)))
   # Sys.sleep(1.7) #delays the code to see some animation
 }
+log(alga[[2]]/alga[[1]])
+##Calculando growth rate
+growth <- vector()
+growth
+for (j in 1:length(climChange)){
+      growth[j] <- log(alga[[j]]/alga[[1]])
+      }
+growth
+temp 
+plot(temp, growth)
+length(climChange)
+climChange[22]
 
 #################PART 2 Cellular automata
 #globals:
