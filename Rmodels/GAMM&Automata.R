@@ -243,18 +243,22 @@ base_matrix = matrix(0, row, col) #the size of the grid
 #asis = asistant matrix to store the neighbors sums
 asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix, col - 2= numero de matrices, and 2 = numero de lists 
 
-for (k in 1:span){        #steps
+for (k in 1:100){        #steps
   for (t in 1:(row -2)){  # row
     for (i in 1:(col-2)){ # column
-      if (plat[[k]][t + 1, i + 1] > (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8){
-        p <- plat[[k]][t + 1, i + 1]/ 8 #average inside or focal PATCH
-        asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p # propagation, inside propagates outside
-        asis[[t]][[i]][t + 1, i + 1] <- 0 # leaving focal Patch empty
-        
-      } else if (plat[[k]][t + 1, i + 1] < (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8) { 
-        p <- (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1]) / 8 #average outside  
-        asis[[t]][[i]][t + 1, i + 1] <- p # average outside
-      }    
+      if ((sum(plat[[k]][t: (2 + t) , i : (2 + i)])/9) < 50) {
+        if (plat[[k]][t + 1, i + 1] > (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8){
+          p <- plat[[k]][t + 1, i + 1]/ 8 #average inside or focal PATCH
+          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p # propagation, inside propagates outside
+          asis[[t]][[i]][t + 1, i + 1] <- 0 # leaving focal Patch empty
+          
+        } else if (plat[[k]][t + 1, i + 1] < (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8) { 
+          p <- (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1]) / 8 #average outside  
+          asis[[t]][[i]][t + 1, i + 1] <- p # average outside
+        }
+      } else { 
+        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  -5 #plat[[k]][t: (2 + t) , i : (2 + i)]  
+      }
     }
   }
   asis_1 <- list()
@@ -262,11 +266,16 @@ for (k in 1:span){        #steps
     asis_1[[g]] <- Reduce('+', asis[[g]]) #+ Reduce('+', asis[[2]]) + Reduce('+', asis[[3]]) + plat[[k]] #summing matrices
   }
   plat[[k + 1]] <- Reduce('+', asis_1) + plat[[k]]
+  plat1 <- matrix()
+  plat1 <- plat[[k + 1]]
+  plat1[plat1 < 0] <- 0
+  plat[[k + 1]] <- plat1
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
-  image.plot(matrix((data=plat[[k]]), ncol=ncol, nrow=nrow), zlim = c(0,60 ))
+  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 150))
   Sys.sleep(1)
 }
+
 plat[[56]]
 
 
