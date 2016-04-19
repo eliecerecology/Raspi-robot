@@ -1,5 +1,5 @@
 library(plotrix)
-rm(list=ls(all=TRUE))
+#rm(list=ls(all=TRUE))
 #install.packages("plotrix")
 
 row = 60; col = 60; span = 200; delay = 0.2

@@ -13,7 +13,7 @@ library(plotrix); library(scatterplot3d); library(rgl)
 
 
 source("HighstatLibV9.R") 
-source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
+#source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
 
 Mac$year <- as.factor(Mac$year)
 Mac$Month <- as.factor(Mac$Month)
@@ -92,7 +92,7 @@ X2 <- expand.grid(
 #  Hab = levels(Mac$Hab)
 #)
 
-O1        <- X2[X2$Hab == "2",] #& X1[X1$Treat == "C", ]
+O1        <- X2[X2$Hab == "1",] #& X1[X1$Treat == "C", ]
 #P1        <- X2[X2$Hab == "2",]
 OT1       <- O1[O1$Treat == "C",] 
 
@@ -145,7 +145,7 @@ for (i in 1:length(climChange)){
 
 ##################################SIMULATION, HERE I created a matrix and time span
 
-ncol = 4; nrow = 4; span = length(climChange) #days
+ncol = 40; nrow = 40; span = length(climChange) #days
 aux <- 1:span                #how many matrices?
 
 xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of patches
@@ -217,22 +217,22 @@ for (i in 1:length(climChange)){
   #image.plot(matrix((data=alga[[i]]), ncol=ncol, nrow=nrow), zlim = c(0, length(alga)))
   # Sys.sleep(1.7) #delays the code to see some animation
 }
-log(alga[[2]]/alga[[1]])
-##Calculando growth rate
+
+#####Calculando growth rate
 growth <- vector()
-growth
+tempdiff <- vector()
 for (j in 1:length(climChange)){
       growth[j] <- log(alga[[j]]/alga[[1]])
+      tempdiff[j] <- temp[j] - temp[1]
       }
+length(tempdiff)
 growth
-temp 
-plot(temp, growth)
-length(climChange)
-climChange[22]
+plot(tempdiff, growth)
+
 
 #################PART 2 Cellular automata
 #globals:
-row = nrow; col = ncol; span = 7 #span or steps, col =columns, row = rows in the matrix
+row = nrow; col = ncol; span = span #span or steps, col =columns, row = rows in the matrix
 
 plat <- sapply(1:span, function(x) {matrix(0, nrow = row, ncol = col)}, simplify = FALSE) # rocky shore platform
 
