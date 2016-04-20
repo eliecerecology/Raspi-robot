@@ -1,9 +1,12 @@
 rm(list=ls(all=TRUE))
-setwd("/home/eliecer/Desktop")
+setwd("C:/Users/localadmin_eliediaz/Documents/MEGA/Storage/DATA_CLIMATE")
 
-s <- read.table("SemivarioHOME.txt", header = TRUE)
-n = length(s$red) # 59
-LNvecLag = log(s$lag)
+s <- read.table("grazerT.txt", header = T)
+edit(s)
+lag <- seq(0.25, 14.75 , 0.25)
+n = length(lag) # 59
+LNvecLag = log(lag)
+
 lags =  30 #length(s$red)/2 #NUMBER OF LAGS
 A = s$red
 o <- sapply(1:lags, function(x) {
