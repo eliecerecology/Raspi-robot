@@ -145,7 +145,7 @@ for (i in 1:length(climChange)){
 
 ##################################SIMULATION, HERE I created a matrix and time span
 
-ncol = 40; nrow = 40; span = length(climChange) #days
+ncol = 30; nrow = 30; span = length(climChange) #days
 aux <- 1:span                #how many matrices?
 
 xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of patches
@@ -196,7 +196,7 @@ alga <- sapply(aux, function(x) {
 Pra <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
 }, simplify = FALSE) # 
-length(climChange)
+
 
 for (i in 1:length(climChange)){
   for (j in 1:(nrow*ncol)){ #fill them in order, not as a matrix, it is easier
@@ -225,9 +225,13 @@ for (j in 1:length(climChange)){
       growth[j] <- log(alga[[j]]/alga[[1]])
       tempdiff[j] <- temp[j] - temp[1]
       }
-length(tempdiff)
-growth
-plot(tempdiff, growth)
+#plot(tempdiff, growth)
+tempdiff2 <- tempdiff^2
+quadratic.model <-lm(growth ~ tempdiff + tempdiff2)
+#summary(quadratic.model)
+#newtemp <- seq(25, 30, 1)
+#pred_growth <- predict(quadratic.model, list(tempdiff = newtemp, tempdiff2 = newtemp^2))
+#plot(newtemp, pred_growth, pch=16, xlab = "Temp (s)", ylab = "Growth rate", cex.lab = 1.3, col = "blue")
 
 
 #################PART 2 Cellular automata
@@ -246,18 +250,19 @@ asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix
 for (k in 1:100){        #steps
   for (t in 1:(row -2)){  # row
     for (i in 1:(col-2)){ # column
+      growth <- predict(quadratic.model, list(tempdiff = temp[k], tempdiff2 = temp[k]^2))
       if ((sum(plat[[k]][t: (2 + t) , i : (2 + i)])/9) < 50) {
         if (plat[[k]][t + 1, i + 1] > (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8){
           p <- plat[[k]][t + 1, i + 1]/ 8 #average inside or focal PATCH
-          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p # propagation, inside propagates outside
+          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p * growth # propagation, inside propagates outside
           asis[[t]][[i]][t + 1, i + 1] <- 0 # leaving focal Patch empty
           
         } else if (plat[[k]][t + 1, i + 1] < (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8) { 
           p <- (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1]) / 8 #average outside  
-          asis[[t]][[i]][t + 1, i + 1] <- p # average outside
+          asis[[t]][[i]][t + 1, i + 1] <- p * growth # average outside
         }
       } else { 
-        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  -5 #plat[[k]][t: (2 + t) , i : (2 + i)]  
+        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  - (2 * growth) #plat[[k]][t: (2 + t) , i : (2 + i)]  
       }
     }
   }
@@ -273,10 +278,11 @@ for (k in 1:100){        #steps
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
   image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 150))
-  Sys.sleep(1)
+  print(sum(plat[[k]])); print(k)
+  Sys.sleep(0.8)
 }
-
-plat[[56]]
+length(temp)
+edit(plat[[24]])
 
 
 
