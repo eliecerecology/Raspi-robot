@@ -292,7 +292,7 @@ for (k in 1:100){        #steps
 tim.colors
 topo.colors
 col=gray.colors(100)
-edit(plat[[24]])
+edit(plat[[34]])
 
 ?image.plot
 
