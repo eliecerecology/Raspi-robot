@@ -251,7 +251,8 @@ plat[[1]] <- alga[[1]]
 base_matrix = matrix(0, row, col) #the size of the grid
 #asis = asistant matrix to store the neighbors sums
 asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix, col - 2= numero de matrices, and 2 = numero de lists 
-a <- 16
+col3 <- colorRampPalette(c("white", "green", "black")) 
+a <- 12
 for (k in 1:100){        #steps
   for (t in 1:(row -2)){  # row
     for (i in 1:(col-2)){ # column
@@ -282,14 +283,16 @@ for (k in 1:100){        #steps
   plat[[k + 1]] <- plat1
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
-  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 200),
-             col=topo.colors(100))
+  
+  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 500),
+             col=col3(100) )
   print(sum(plat[[k]])); print(k)
   Sys.sleep(0.8)
 }
 tim.colors
-
+topo.colors
+col=gray.colors(100)
 edit(plat[[24]])
 
-
+?image.plot
 
