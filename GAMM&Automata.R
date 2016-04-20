@@ -13,7 +13,7 @@ library(plotrix); library(scatterplot3d); library(rgl)
 
 
 source("HighstatLibV9.R") 
-source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
+#source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
 
 Mac$year <- as.factor(Mac$year)
 Mac$Month <- as.factor(Mac$Month)
@@ -92,7 +92,7 @@ X2 <- expand.grid(
 #  Hab = levels(Mac$Hab)
 #)
 
-O1        <- X2[X2$Hab == "2",] #& X1[X1$Treat == "C", ]
+O1        <- X2[X2$Hab == "1",] #& X1[X1$Treat == "C", ]
 #P1        <- X2[X2$Hab == "2",]
 OT1       <- O1[O1$Treat == "C",] 
 
@@ -145,7 +145,7 @@ for (i in 1:length(climChange)){
 
 ##################################SIMULATION, HERE I created a matrix and time span
 
-ncol = 4; nrow = 4; span = length(climChange) #days
+ncol = 30; nrow = 30; span = length(climChange) #days
 aux <- 1:span                #how many matrices?
 
 xy <- expand.grid(1:ncol, 1:nrow) # 1:ncol, 1:span # creates a  grid of patches
@@ -196,7 +196,7 @@ alga <- sapply(aux, function(x) {
 Pra <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
 }, simplify = FALSE) # 
-length(climChange)
+
 
 for (i in 1:length(climChange)){
   for (j in 1:(nrow*ncol)){ #fill them in order, not as a matrix, it is easier
@@ -217,22 +217,31 @@ for (i in 1:length(climChange)){
   #image.plot(matrix((data=alga[[i]]), ncol=ncol, nrow=nrow), zlim = c(0, length(alga)))
   # Sys.sleep(1.7) #delays the code to see some animation
 }
-log(alga[[2]]/alga[[1]])
-##Calculando growth rate
+
+#####Calculando growth rate
 growth <- vector()
-growth
+growth_f <- vector()
+tempdiff <- vector()
 for (j in 1:length(climChange)){
       growth[j] <- log(alga[[j]]/alga[[1]])
+      tempdiff[j] <- temp[j] - temp[1]
       }
-growth
-temp 
-plot(temp, growth)
-length(climChange)
-climChange[22]
+#plot(tempdiff, growth)
+tempdiff2 <- tempdiff^2
+quadratic.model <-lm(growth ~ tempdiff + tempdiff2)
+for (j in 1:length(climChange)){
+      growth_f[j] <- predict(quadratic.model, list(tempdiff = temp[j], tempdiff2 = temp[j]^2))
+}
+
+#summary(quadratic.model)
+#newtemp <- seq(25, 30, 1)
+#pred_growth <- predict(quadratic.model, list(tempdiff = newtemp, tempdiff2 = newtemp^2))
+#plot(newtemp, pred_growth, pch=16, xlab = "Temp (s)", ylab = "Growth rate", cex.lab = 1.3, col = "blue")
+
 
 #################PART 2 Cellular automata
 #globals:
-row = nrow; col = ncol; span = 7 #span or steps, col =columns, row = rows in the matrix
+row = nrow; col = ncol; span = span #span or steps, col =columns, row = rows in the matrix
 
 plat <- sapply(1:span, function(x) {matrix(0, nrow = row, ncol = col)}, simplify = FALSE) # rocky shore platform
 
@@ -242,22 +251,23 @@ plat[[1]] <- alga[[1]]
 base_matrix = matrix(0, row, col) #the size of the grid
 #asis = asistant matrix to store the neighbors sums
 asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix, col - 2= numero de matrices, and 2 = numero de lists 
-
+a <- 16
 for (k in 1:100){        #steps
   for (t in 1:(row -2)){  # row
     for (i in 1:(col-2)){ # column
+      
       if ((sum(plat[[k]][t: (2 + t) , i : (2 + i)])/9) < 50) {
         if (plat[[k]][t + 1, i + 1] > (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8){
           p <- plat[[k]][t + 1, i + 1]/ 8 #average inside or focal PATCH
-          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p # propagation, inside propagates outside
+          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p * growth_f[a] # propagation, inside propagates outside
           asis[[t]][[i]][t + 1, i + 1] <- 0 # leaving focal Patch empty
           
         } else if (plat[[k]][t + 1, i + 1] < (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8) { 
           p <- (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1]) / 8 #average outside  
-          asis[[t]][[i]][t + 1, i + 1] <- p # average outside
+          asis[[t]][[i]][t + 1, i + 1] <- p * growth_f[a] # average outside
         }
       } else { 
-        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  -5 #plat[[k]][t: (2 + t) , i : (2 + i)]  
+        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  - 6*(growth_f[a]) #plat[[k]][t: (2 + t) , i : (2 + i)]  
       }
     }
   }
@@ -272,11 +282,14 @@ for (k in 1:100){        #steps
   plat[[k + 1]] <- plat1
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
-  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 150))
-  Sys.sleep(1)
+  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 200),
+             col=topo.colors(100))
+  print(sum(plat[[k]])); print(k)
+  Sys.sleep(0.8)
 }
+tim.colors
 
-plat[[56]]
+edit(plat[[24]])
 
 
 
