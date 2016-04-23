@@ -11,7 +11,6 @@ library(lattice);library(lme4); library(sp); library(MASS); library(gamlss)  #Fo
 library(gstat); library(mgcv); library(gamlss.dist); library(gamlss.add)
 library(plotrix); library(scatterplot3d); library(rgl)
 
-
 source("HighstatLibV9.R") 
 #source("/home/ellis/Documents/Storage/CDMCMCGLMGAMCourse/Data/MCMCSupportHighstat.R")
 
@@ -103,7 +102,6 @@ Xc5 <- model.matrix(~ Elev + Micro + Hab + Treat, #c => count part
 temp <- seq(5, 28, 1)
 climChange <- -0.033*(temp^2) + 1.006*temp - 8.24 # transform temp to intercept scale
 
-
 a <- as.numeric() #a counting variable to graph, it can be ommitted 
 for (i in 1:length(climChange)){
   Sys.sleep(0.2)
@@ -142,9 +140,7 @@ for (i in 1:length(climChange)){
   Sys.sleep(1.7)
 }
 
-
 ##################################SIMULATION, HERE I created a matrix and time span
-
 ncol = 30; nrow = 30; span = length(climChange) #days
 aux <- 1:span                #how many matrices?
 
@@ -197,7 +193,6 @@ Pra <- sapply(aux, function(x) {
   matrix(1, ncol = ncol, nrow = nrow)
 }, simplify = FALSE) # 
 
-
 for (i in 1:length(climChange)){
   for (j in 1:(nrow*ncol)){ #fill them in order, not as a matrix, it is easier
     X2 <- expand.grid(
@@ -220,6 +215,7 @@ for (i in 1:length(climChange)){
 
 #####Calculando growth rate
 growth <- vector()
+growth_f <- vector()
 tempdiff <- vector()
 for (j in 1:length(climChange)){
       growth[j] <- log(alga[[j]]/alga[[1]])
@@ -228,11 +224,9 @@ for (j in 1:length(climChange)){
 #plot(tempdiff, growth)
 tempdiff2 <- tempdiff^2
 quadratic.model <-lm(growth ~ tempdiff + tempdiff2)
-#summary(quadratic.model)
-#newtemp <- seq(25, 30, 1)
-#pred_growth <- predict(quadratic.model, list(tempdiff = newtemp, tempdiff2 = newtemp^2))
-#plot(newtemp, pred_growth, pch=16, xlab = "Temp (s)", ylab = "Growth rate", cex.lab = 1.3, col = "blue")
-
+for (j in 1:length(climChange)){
+      growth_f[j] <- predict(quadratic.model, list(tempdiff = temp[j], tempdiff2 = temp[j]^2))
+}
 
 #################PART 2 Cellular automata
 #globals:
@@ -246,23 +240,24 @@ plat[[1]] <- alga[[1]]
 base_matrix = matrix(0, row, col) #the size of the grid
 #asis = asistant matrix to store the neighbors sums
 asis <- rep(list(rep(list(base_matrix), col-2)), col-2) # ASISTANT is the matrix, col - 2= numero de matrices, and 2 = numero de lists 
-
+col3 <- colorRampPalette(c("white", "green", "black")) 
+a <- 16;# par(mfrow=c(1,1))
 for (k in 1:100){        #steps
   for (t in 1:(row -2)){  # row
     for (i in 1:(col-2)){ # column
-      growth <- predict(quadratic.model, list(tempdiff = temp[k], tempdiff2 = temp[k]^2))
+      
       if ((sum(plat[[k]][t: (2 + t) , i : (2 + i)])/9) < 50) {
         if (plat[[k]][t + 1, i + 1] > (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8){
           p <- plat[[k]][t + 1, i + 1]/ 8 #average inside or focal PATCH
-          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p * growth # propagation, inside propagates outside
+          asis[[t]][[i]][t: (2 + t) , i : (2 + i)]  <- p * growth_f[a] # propagation, inside propagates outside
           asis[[t]][[i]][t + 1, i + 1] <- 0 # leaving focal Patch empty
           
         } else if (plat[[k]][t + 1, i + 1] < (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1])/8) { 
           p <- (sum(plat[[k]][t: (2 + t) , i : (2 + i)]) - plat[[k]][t + 1, i + 1]) / 8 #average outside  
-          asis[[t]][[i]][t + 1, i + 1] <- p * growth # average outside
+          asis[[t]][[i]][t + 1, i + 1] <- p * growth_f[a] # average outside
         }
       } else { 
-        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  - (2 * growth) #plat[[k]][t: (2 + t) , i : (2 + i)]  
+        asis[[t]][[i]][t: (2 + t) , i : (2 + i)] <-  - 6*(abs(growth_f[a])) #plat[[k]][t: (2 + t) , i : (2 + i)]  
       }
     }
   }
@@ -277,12 +272,15 @@ for (k in 1:100){        #steps
   plat[[k + 1]] <- plat1
   plat[[k + 1]][1:col, 1]   <- 0; plat[[k + 1]][1, 1: row]  <- 0 #cleaning the edge
   plat[[k + 1]][1:row, col] <- 0; plat[[k + 1]][row, 1:col] <- 0 #cleaning the edge
-  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 150))
+  
+  image.plot(matrix((data=plat[[k]]), row, col), zlim = c(0, 200),
+             col=col3(100) )
+  suma[k] <- round(sum(plat[[k]]))
+  plot(1:k, suma[1:k], type = "l")
   print(sum(plat[[k]])); print(k)
   Sys.sleep(0.8)
 }
-length(temp)
-edit(plat[[24]])
 
 
-
+growth_f[16];temp[16]
+growth_f
