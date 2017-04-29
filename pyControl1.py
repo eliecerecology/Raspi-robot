@@ -3,7 +3,7 @@ import time
 import random
 import RPi.GPIO as gpio
 
-#Associate pin numbers with direction
+#Associate pin numbers with direction, yes
 rightForward  = 11
 rightBackward = 13
 leftForward   = 15
